@@ -221,6 +221,17 @@ namespace Autofac.Extras.Moq.Test
                 });
         }
 
+        [Fact]
+        public void LooseCreate_SuccessfulOnUnregisteredGeneric()
+        {
+            var mock = AutoMock.GetLoose();
+            // mock.Provide(new ClassA()); <- this fixes it
+            Assert.NotNull(AutoMock.GetLoose().Create<GenericClassA<ClassA>>());
+
+            // has to be a reference type for whatever reason on provide...
+            // Assert.NotNull(AutoMock.GetLoose().Create<GenericClassA<int>>());
+        }
+
         private static void AssertProperties(AutoMock mock)
         {
             Assert.NotNull(mock.Container);
@@ -263,6 +274,17 @@ namespace Autofac.Extras.Moq.Test
         public class ClassA : AbstractClassA
         {
         }
+
+        public class GenericClassA<T>
+        {
+            private readonly ClassA _dependency;
+
+            public GenericClassA(ClassA dependency)
+            {
+                _dependency = dependency;
+            }
+        }
+
 
         public class ConcreteTypeWithoutDefaultConstructor
         {
